@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- name space는 MovieRepo의 fully qualified name으로 설정한다. -->
+<mapper namespace="com.proj.community.model.dao.ArticleDao">
+
+	<resultMap id="articleMap" type="Article">
+		<result column="article_id" property="id"/>
+		<result column="article_title" property="title"/>
+		<result column="article_writer" property="writer"/>
+		<result column="article_content" property="content"/>
+		<result column="article_category" property="category"/>
+		<result column="article_view_count" property="viewCnt"/>
+		<result column="article_recommend_count" property="recommendCnt"/>
+		<result column="article_write_date" property="writeDate"/>
+		<result column="article_comment_count" property="commentCnt"/>
+	</resultMap>
+	
+	<!-- 게시글 조회(카테고리, 검색어, 정렬순서)-->
+	<select id="search" parameterType="String" resultMap="articleMap">
+		SELECT article_id, article_title, article_writer, article_content, article_category, article_view_count, 
+		article_recommend_count, date_format(article_write_date, '%Y-%m-%d %H:%i:%s') as article_write_date, article_comment_count
+		FROM article
+		WHERE 
+		<choose>
+			<when test='category.equals("all")'>
+				(article_id != 0)
+			</when>
+			<otherwise>
+				(article_category = #{category})
+			</otherwise>
+		</choose>
+		<choose>
+			<when test='searchTarget.equals("all")'>
+				AND (article_title like concat('%', #{word}, '%')
+				OR article_writer like concat('%', #{word}, '%')
+				OR article_content like concat('%', #{word}, '%'))
+			</when>
+			<when test='searchTarget.equals("title")'>
+				AND (article_title like concat('%', #{word}, '%'))
+				
+			</when>
+			<when test='searchTarget.equals("writer")'>
+				AND (article_writer like concat('%', #{word}, '%'))
+				
+			</when>
+			<when test='searchTarget.equals("content")'>
+				AND (article_content like concat('%', #{word}, '%'))
+			</when>
+		</choose>
+		ORDER BY article_write_date DESC
+	</select>
+	
+	<select id="searchByWriter" resultMap="articleMap">
+		SELECT article_id, article_title, article_writer, article_content, article_category, article_view_count, 
+		article_recommend_count, date_format(article_write_date, '%Y-%m-%d %H:%i:%s') as article_write_date, article_comment_count
+		FROM article
+		WHERE article_writer = #{nickname}
+		ORDER BY article_write_date DESC
+	</select>
+	
+	<select id="readAll" resultMap="articleMap">
+		SELECT article_id, article_title, article_writer, article_content, article_category, article_view_count, 
+		article_recommend_count, date_format(article_write_date, '%Y-%m-%d %H:%i:%s') as article_write_date, article_comment_count
+		FROM article
+		ORDER BY article_write_date DESC
+	</select>
+	
+	<select id="read" parameterType="int" resultMap="articleMap">
+		SELECT article_id, article_title, article_writer, article_content, article_category, article_view_count, 
+		article_recommend_count, date_format(article_write_date, '%Y-%m-%d %H:%i:%s') as article_write_date, article_comment_count
+		FROM article
+		WHERE article_id = #{id}
+	</select>
+	
+	<insert id="create" parameterType="Article">
+		INSERT INTO article(article_title, article_writer, article_content, article_category, article_view_count, article_recommend_count, article_comment_count)
+		VALUES(#{title}, #{writer}, #{content}, #{category}, #{viewCnt}, #{recommendCnt}, #{commentCnt})
+	</insert>
+	
+	<update id="update" parameterType="Article">
+		UPDATE article
+		SET 
+		article_title = #{title},
+		article_content = #{content},
+		article_category = #{category},
+		article_view_count = #{viewCnt},
+		article_recommend_count = #{recommendCnt},
+		article_write_date = #{writeDate},
+		article_comment_count = #{commentCnt}
+		WHERE article_id = #{id}
+	</update>
+	
+	<delete id="delete" parameterType="int">
+		DELETE FROM article
+		WHERE article_id = #{id}
+	</delete>
+	
+	<select id="readCategory" parameterType="String" resultMap="articleMap">
+		SELECT article_id, article_title, article_writer, article_content, article_category, article_view_count, 
+		article_recommend_count, date_format(article_write_date, '%Y-%m-%d %H:%i:%s') as article_write_date, article_comment_count
+		FROM article
+		WHERE 
+		<choose>
+			<when test='category.equals("all")'>
+				(article_id != 0)
+			</when>
+			<otherwise>
+				(article_category = #{category})
+			</otherwise>
+		</choose>
+		ORDER BY
+		<choose>
+			<when test='sortTarget.equals("view")'>
+				article_view_count DESC, article_write_date DESC
+			</when>
+			<when test='sortTarget.equals("recommend")'>
+				article_recommend_count DESC, article_write_date DESC
+			</when>
+			<when test='sortTarget.equals("comment")'>
+				article_comment_count DESC, article_write_date DESC
+			</when>
+			<otherwise>
+				article_write_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+</mapper>

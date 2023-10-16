@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- name space는 MovieRepo의 fully qualified name으로 설정한다. -->
+<mapper namespace="com.proj.community.model.dao.MovieDao">
+		<resultMap id="movieMap" type="Movie">
+			<result column="movie_id" property="id"/>
+			<result column="movie_title" property="title"/>
+			<result column="movie_genre" property="genre"/>
+			<result column="movie_overview" property="overview"/>
+			<result column="movie_recommend_count" property="recommendCnt"/>
+			<result column="movie_backdrop_path" property="backdropPath"/>
+			<result column="movie_poster_path" property="posterPath"/>
+			<result column="movie_popularity" property="popularity"/>
+			<result column="movie_release_date" property="releaseDate"/>
+			<result column="movie_comment_count" property="commentCnt"/>
+			<result column="movie_key" property="key"/>
+		</resultMap>
+	
+	<select id="readAll" resultMap="movieMap">
+		SELECT movie_id, movie_title, movie_genre, movie_overview, movie_recommend_count, movie_backdrop_path, movie_poster_path,movie_popularity,
+		date_format(movie_release_date, '%Y-%m-%d') as movie_release_date, movie_comment_count, movie_key
+		FROM movie
+		ORDER BY movie_popularity DESC
+	</select>
+	
+	<select id="searchByTitle" parameterType="String" resultMap="movieMap">
+		SELECT movie_id, movie_title, movie_genre, movie_overview, movie_recommend_count, movie_backdrop_path, movie_poster_path,movie_popularity,
+		date_format(movie_release_date, '%Y-%m-%d') as movie_release_date, movie_comment_count, movie_key
+		FROM movie
+		WHERE movie_title like concat('%', #{word}, '%')
+		ORDER BY movie_popularity DESC
+	</select>
+	
+	<select id="read" resultMap="movieMap">
+		SELECT movie_id, movie_title, movie_genre, movie_overview, movie_recommend_count, movie_backdrop_path, movie_poster_path,movie_popularity,
+		date_format(movie_release_date, '%Y-%m-%d') as movie_release_date, movie_comment_count, movie_key
+		FROM movie
+		WHERE movie_id = #{id}
+	</select>
+	
+	<insert id="insert" parameterType="Movie">
+		INSERT INTO movie
+		VALUES(#{id}, #{title}, #{genre}, #{overview}, #{recommendCnt}, #{backdropPath},  
+		#{posterPath}, #{popularity}, #{releaseDate}, #{commentCnt}, #{key})
+	</insert>
+	
+	<!--인기도, 추천수, 댓글수 갱신-->
+	<update id="update" parameterType="Movie">
+		UPDATE movie
+		SET movie_popularity = #{popularity},
+			movie_recommend_count = #{recommendCnt},
+			movie_comment_count = #{commentCnt}
+		WHERE movie_id = #{id}
+	</update>
+	
+	<delete id="delete" parameterType="int">
+		DELETE FROM movie
+		WHERE movie_id = #{id}
+	</delete>
+	
+</mapper>

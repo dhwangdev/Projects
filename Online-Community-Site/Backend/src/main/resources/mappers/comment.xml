@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- name space는 MovieRepo의 fully qualified name으로 설정한다. -->
+<mapper namespace="com.proj.community.model.dao.CommentDao">
+
+	<resultMap id="commentMap" type="Comment">
+		<result column="comment_id" property="id"/>
+		<result column="comment_writer" property="writer"/>
+		<result column="comment_content" property="content"/>
+		<result column="comment_article_id" property="articleId"/>
+		<result column="comment_category" property="category"/>
+		<result column="comment_recommend_count" property="recommendCnt"/>
+		<result column="comment_write_date" property="writeDate"/>
+		<result column="comment_delete" property="isDelete"/>
+	</resultMap>
+	
+	<resultMap id="recommentMap" type="Recomment">
+		<result column="recomment_id" property="reId"/>
+		<result column="recomment_writer" property="reWriter"/>
+		<result column="recomment_content" property="reContent"/>
+		<result column="recomment_comment_id" property="reCommentId"/>
+		<result column="recomment_recommend_count" property="reReommendCnt"/>
+		<result column="recomment_write_date" property="reWriteDate"/>
+		<result column="recomment_delete" property="reIsDelete"/>
+	</resultMap>
+	
+	<!-- 댓글가져오기 -->
+	<select id="readComment" parameterType="hashmap" resultMap="commentMap">
+		SELECT comment_id, comment_writer, comment_content, comment_article_id, comment_category,
+		comment_recommend_count, date_format(comment_write_date, '%Y-%m-%d %H:%i:%s') as comment_write_date, comment_delete
+		FROM comment
+		WHERE comment_category = #{category} AND comment_article_id = #{articleId}
+		ORDER BY comment_id
+	</select>
+	
+	<!-- 대댓글 가져오기-->
+	<select id="readRecomment" parameterType="int" resultMap="recommentMap">
+		SELECT recomment_id, recomment_writer, recomment_content, recomment_comment_id, recomment_recommend_count,
+		date_format(recomment_write_date, '%Y-%m-%d %H:%i:%s') as recomment_write_date, recomment_delete
+		FROM recomment
+		WHERE recomment_comment_id = #{commentId}
+		ORDER BY recomment_comment_id
+	</select>
+	
+	<!-- best댓글3 가져온다.-->
+	<select id="readBest" parameterType="hashmap" resultMap="commentMap">
+		SELECT comment_id, comment_writer, comment_content, comment_article_id, comment_category,
+		comment_recommend_count, date_format(comment_write_date, '%Y-%m-%d %H:%i:%s') as comment_write_date, comment_delete
+		FROM comment
+		WHERE comment_category = #{category} AND comment_article_id = #{articleId}
+		ORDER BY comment_recommend_count DESC
+		LIMIT 3
+	</select>
+	
+	<!-- 작성자의 댓글을 가져온다. 10개까지-->
+	<select id="searchByWriter" parameterType="String" resultMap="commentMap">
+		SELECT comment_id, comment_writer, comment_content, comment_article_id, comment_category,
+		comment_recommend_count, date_format(comment_write_date, '%Y-%m-%d %H:%i:%s') as comment_write_date, comment_delete
+		FROM comment
+		WHERE comment_writer = #{nickname} AND comment_delete = 0
+		ORDER BY comment_id DESC
+		LIMIT 10
+	</select>
+	
+	<!-- 댓글 추가한다.-->
+	<insert id="createComment" parameterType="Comment">
+		INSERT INTO comment(comment_writer, comment_content, comment_article_id, comment_category)
+		VALUES(#{writer}, #{content}, #{articleId}, #{category})
+	</insert>
+	
+	<!-- 댓글을 수정한다. 또는 삭제(변수관리)-->
+	<update id="updateComment" parameterType="Comment">
+		UPDATE comment
+		SET
+		comment_content = #{content},
+		comment_recommend_count = #{recommendCnt},
+		comment_write_date = now(),
+		comment_delete = #{isDelete}
+		WHERE comment_id = #{id}
+	</update>
+	
+	<!-- 댓글을 삭제한다. 대댓글 다 삭제됨-->
+	<delete id="deleteComment" parameterType="int">
+		DELETE FROM comment, recomment
+		USING comment
+		LEFT JOIN recomment
+		ON comment_id = recomment_comment_id
+		WHERE comment_id = #{commentId}
+		
+	</delete>
+	
+	<!-- 대댓글을 추가한다.-->
+	<insert id="createRecomment" parameterType="reComment">
+		INSERT INTO recomment(recomment_writer, recomment_content, recomment_comment_id)
+		VALUES(#{reWriter}, #{reContent}, #{reCommentId})
+	</insert>
+	
+	<!-- 대댓글을 수정한다. 또는 삭제(변수관리)-->
+	<update id="updateRecomment" parameterType="reComment">
+		UPDATE recomment
+		SET
+		recomment_content = #{reContent},
+		recomment_recommend_count = #{reReommendCnt},
+		recomment_write_date = now(),
+		recomment_delete = #{reIsDelete}
+		WHERE recomment_id = #{reId}
+	</update>
+	
+	<!-- 대댓글을 삭제한다.-->
+	<delete id="deleteRecomment" parameterType="int">
+		DELETE FROM recomment
+		WHERE recomment_id = #{recommentId}
+	</delete>
+	
+</mapper>

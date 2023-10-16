@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- name space는 MovieRepo의 fully qualified name으로 설정한다. -->
+<mapper namespace="com.proj.community.model.dao.SportDao">
+	<resultMap id="sportMap" type="Sport">
+			<result column="sport_id" property="id"/>
+			<result column="sport_title" property="title"/>
+			<result column="sport_key" property="key"/>
+			<result column="sport_recommend_count" property="recommendCnt"/>
+			<result column="sport_comment_count" property="commentCnt"/>
+			<result column="sport_category" property="category"/>
+			<result column="sport_view_count" property="viewCnt"/>
+		</resultMap>
+	
+	<select id="readCategory" parameterType="String" resultMap="sportMap">
+		SELECT *
+		FROM sport
+		WHERE sport_category = #{category}
+		ORDER BY
+		<choose>
+			<when test='target.equals("view")'>
+				sport_view_count ${direction}
+			</when>
+			<otherwise>
+				sport_recommend_count ${direction}
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="search" parameterType="String" resultMap="sportMap">
+		SELECT *
+		FROM sport
+		WHERE sport_title like concat('%', #{word}, '%')
+		ORDER BY sport_recommend_count DESC
+	</select>
+	
+	<select id="read" parameterType="int" resultMap="sportMap">
+		SELECT *
+		FROM sport
+		WHERE sport_id = #{id}
+	</select>
+	
+	<insert id="create" parameterType="Sport">
+		INSERT INTO sport(sport_title, sport_key, sport_recommend_count, sport_comment_count, sport_category, sport_view_count)
+		VALUES(#{title}, #{key}, #{recommendCnt}, #{commentCnt}, #{category}, #{viewCnt})
+	</insert>
+	
+	<update id="update" parameterType="Sport">
+		UPDATE sport
+		SET 
+		sport_recommend_count = #{recommendCnt},
+		sport_comment_count = #{commentCnt},
+		sport_view_count = #{viewCnt}
+		WHERE sport_id = #{id}
+	</update>
+	
+	<delete id="delete" parameterType="int">
+		DELETE FROM sport
+		WHERE sport_id = #{id}
+	</delete>
+	
+</mapper>

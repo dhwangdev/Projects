@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- name space는 MovieRepo의 fully qualified name으로 설정한다. -->
+<mapper namespace="com.proj.community.model.dao.RecipeDao">
+	<resultMap id="recipeMap" type="Recipe">
+		<result column="recipe_id" property="id"/>
+		<result column="recipe_menu" property="menu"/>
+		<result column="recipe_eng" property="energy"/>
+		<result column="recipe_car" property="carbon"/>
+		<result column="recipe_pro" property="protein"/>
+		<result column="recipe_fat" property="fat"/>
+		<result column="recipe_na" property="natrium"/>
+		<result column="recipe_small_img" property="smallImg"/>
+		<result column="recipe_big_img" property="bigImg"/>
+		<result column="recipe_recommend_count" property="recommendCnt"/>
+		<result column="recipe_parts" property="parts"/>
+		<result column="recipe_comment_count" property="commentCnt"/>
+		<result column="recipe_manual01" property="manual01"/>
+		<result column="recipe_manual02" property="manual02"/>
+		<result column="recipe_manual03" property="manual03"/>
+		<result column="recipe_manual04" property="manual04"/>
+		<result column="recipe_manual05" property="manual05"/>
+		<result column="recipe_manual06" property="manual06"/>
+		<result column="recipe_manual07" property="manual07"/>
+		<result column="recipe_manual08" property="manual08"/>
+		<result column="recipe_manual09" property="manual09"/>
+		<result column="recipe_manual10" property="manual10"/>
+		<result column="recipe_manual11" property="manual11"/>
+		<result column="recipe_manual12" property="manual12"/>
+		<result column="recipe_manual13" property="manual13"/>
+		<result column="recipe_manual14" property="manual14"/>
+		<result column="recipe_manual15" property="manual15"/>
+		<result column="recipe_manual16" property="manual16"/>
+		<result column="recipe_manual17" property="manual17"/>
+		<result column="recipe_manual18" property="manual18"/>
+		<result column="recipe_manual19" property="manual19"/>
+		<result column="recipe_manual20" property="manual20"/>
+		<result column="recipe_manual_img01" property="manualImg01"/>
+		<result column="recipe_manual_img02" property="manualImg02"/>
+		<result column="recipe_manual_img03" property="manualImg03"/>
+		<result column="recipe_manual_img04" property="manualImg04"/>
+		<result column="recipe_manual_img05" property="manualImg05"/>
+		<result column="recipe_manual_img06" property="manualImg06"/>
+		<result column="recipe_manual_img07" property="manualImg07"/>
+		<result column="recipe_manual_img08" property="manualImg08"/>
+		<result column="recipe_manual_img09" property="manualImg09"/>
+		<result column="recipe_manual_img10" property="manualImg10"/>
+		<result column="recipe_manual_img11" property="manualImg11"/>
+		<result column="recipe_manual_img12" property="manualImg12"/>
+		<result column="recipe_manual_img13" property="manualImg13"/>
+		<result column="recipe_manual_img14" property="manualImg14"/>
+		<result column="recipe_manual_img15" property="manualImg15"/>
+		<result column="recipe_manual_img16" property="manualImg16"/>
+		<result column="recipe_manual_img17" property="manualImg17"/>
+		<result column="recipe_manual_img18" property="manualImg18"/>
+		<result column="recipe_manual_img19" property="manualImg19"/>
+		<result column="recipe_manual_img20" property="manualImg20"/>
+	</resultMap>
+	<!-- 검색-->
+	<select id="SearchByTitle" parameterType="String" resultMap="recipeMap">
+		SELECT *
+		FROM recipe
+		WHERE recipe_menu like concat('%', #{word}, '%')
+		ORDER BY recipe_recommend_count DESC
+	</select>
+	
+	<!-- 전체 조회-->
+	<select id="readAll" resultMap="recipeMap">
+		SELECT *
+		FROM recipe
+		ORDER BY recipe_recommend_count DESC
+	</select>
+	
+	<!-- 하나 조회-->
+	<select id="read" parameterType="int" resultMap="recipeMap">
+		SELECT *
+		FROM recipe
+		WHERE recipe_id = #{id}
+	</select>
+	
+	<!-- 등록-->
+	<insert id="create" parameterType="Recipe">
+		INSERT INTO recipe
+		VALUES 
+		(#{id}, #{menu}, #{energy}, #{carbon}, #{protein}, #{fat}, #{natrium}, #{smallImg}, #{bigImg}, #{recommendCnt}, 
+		#{parts}, #{commentCnt}, #{manual01}, #{manual02}, #{manual03},#{manual04}, #{manual05}, #{manual06}, #{manual07},
+		#{manual08}, #{manual09}, #{manual10}, #{manual11}, #{manual12}, #{manual13}, #{manual14}, #{manual15}, #{manual16},
+		#{manual17}, #{manual18},#{manual19}, #{manual20}, #{manualImg01}, #{manualImg02}, #{manualImg03}, #{manualImg04}, 
+		#{manualImg05}, #{manualImg06}, #{manualImg07}, #{manualImg08}, #{manualImg09}, #{manualImg10}, #{manualImg11}, #{manualImg12}, 
+		#{manualImg13},#{manualImg14}, #{manualImg15}, #{manualImg16}, #{manualImg17}, #{manualImg18}, #{manualImg19}, #{manualImg20})
+	
+	</insert>
+	
+	<!-- 수정-->
+	<update id="update" parameterType="Recipe">
+		UPDATE recipe
+		SET 
+		recipe_recommend_count = #{recommendCnt},
+		recipe_comment_count = #{commentCnt}
+		WHERE recipe_id = #{id}
+	</update>
+	
+	<!-- 삭제-->
+	<delete id="delete" parameterType="int">
+		DELETE FROM recipe
+		WHERE recipe_id = #{id}
+	
+	</delete>
+	
+</mapper>

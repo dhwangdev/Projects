@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- name space는 MovieRepo의 fully qualified name으로 설정한다. -->
+<mapper namespace="com.proj.community.model.dao.BookDao">
+	<resultMap id="bookMap" type="Book">
+		<result column="book_id" property="id"/>
+		<result column="book_isbn" property="isbn"/>
+		<result column="book_title" property="title"/>
+		<result column="book_author" property="author"/>
+		<result column="book_pubdate" property="pubDate"/>
+		<result column="book_description" property="description"/>
+		<result column="book_price" property="price"/>
+		<result column="book_cover" property="coverImg"/>
+		<result column="book_publisher" property="publisher"/>
+		<result column="book_category" property="category"/>
+		<result column="book_category_name" property="categoryName"/>
+		<result column="book_review_rank" property="reviewRank"/>
+		<result column="book_best_duration" property="bestDuration"/>
+		<result column="book_best_rank" property="bestRank"/>
+		<result column="book_recommend_count" property="recommendCnt"/>
+		<result column="book_comment_count" property="commentCnt"/>
+	</resultMap>
+	
+	<!--책 카테고리별 조회-->
+	<select id="readCategory" parameterType="String" resultMap="bookMap">
+		SELECT book_id, book_isbn, book_title, book_author, date_format(book_pubdate, '%Y-%m-%d') as book_pubdate, book_description,
+		book_price, book_cover, book_publisher, book_category, book_category_name, book_review_rank, book_best_duration, book_best_rank, book_recommend_count,
+		book_comment_count
+		FROM book
+		WHERE book_category = #{category}
+		ORDER BY
+		<choose>
+			<when test='category.equals("Bestseller")'>
+				book_best_rank ASC
+			</when>
+			<otherwise>
+				book_recommend_count DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 책 분류별 검색-->
+	<select id="search" parameterType="String" resultMap="bookMap">
+		SELECT book_id, book_isbn, book_title, book_author, date_format(book_pubdate, '%Y-%m-%d') as book_pubdate, book_description,
+		book_price, book_cover, book_publisher, book_category, book_category_name, book_review_rank, book_best_duration, book_best_rank, book_recommend_count,
+		book_comment_count
+		FROM book
+		WHERE book_title like concat('%', #{word}, '%') OR book_author like concat('%', #{word}, '%')
+		ORDER BY book_best_rank ASC
+	</select>
+	
+	<select id="read" parameterType="int" resultMap="bookMap">
+		SELECT book_id, book_isbn, book_title, book_author, date_format(book_pubdate, '%Y-%m-%d') as book_pubdate, book_description,
+		book_price, book_cover, book_publisher, book_category, book_category_name, book_review_rank, book_best_duration, book_best_rank, book_recommend_count,
+		book_comment_count
+		FROM book
+		WHERE book_id = #{id}
+	</select>
+	
+	<insert id="create" parameterType="Book">
+		INSERT INTO book (book_isbn, book_title, book_author, book_pubdate, book_description, book_price, book_cover, book_publisher,
+		book_category, book_category_name, book_review_rank, book_best_duration, book_best_rank, book_recommend_count, book_comment_count)
+		VALUES(#{isbn}, #{title}, #{author}, #{pubDate}, #{description}, #{price}, #{coverImg}, 
+		#{publisher}, #{category}, #{categoryName}, #{reviewRank}, #{bestDuration}, 
+		#{bestRank}, #{recommendCnt}, #{commentCnt})
+	</insert>
+	
+	<update id="update" parameterType="Book">
+		UPDATE book
+		SET 
+		book_price = #{price},
+		book_category = #{category},
+		book_review_rank = #{reviewRank},
+		book_best_duration = #{bestDuration},
+		book_best_rank = #{bestRank},
+		book_recommend_count = #{recommendCnt}, 
+		book_comment_count = #{commentCnt} 
+		WHERE book_id = #{id}
+	</update>
+	
+	<delete id="delete" parameterType="int">
+		DELETE FROM book
+		WHERE book_id = #{id}
+	</delete>
+	
+</mapper>
